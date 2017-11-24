@@ -1,0 +1,122 @@
+version: '3'
+services:
+  deltac:
+    image: mziegle1/deltac:run
+    stdin_open: true
+    tty: true
+    environment:
+      - CUSTOMER_SERVICE_PORT=40000
+      - POLICY_SERVICE_PORT=40001
+      - DOCUMENT_SERVICE_PORT=40002
+      - CUSTOMER_SERVICE_HOST=customerService
+      - POLICY_SERVICE_HOST=policyService
+      - DOCUMENT_SERVICE_HOST=documentService
+    command: bash
+    volumes:
+      - ~/bills:/bills
+    labels:
+      edu.hm.ziegler0.description: "Delta Insurance Client"
+      edu.hm.ziegler0.department: "Terminal"
+  ratingService:
+    image: mziegle1/rating_service:run
+    ports:
+      - "40003:40003"
+    environment:
+      RATING_SERVICE_PORT=40003
+    edu.hm.ziegler0.description: "Rating Microservice"
+    edu.hm.ziegler0.department: "Rating"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  customerService:
+    image: mziegle1/customer_service:run
+    ports:
+      - "40000:40000"
+    environment:
+      - DB_SERVER=database
+      - DB_USER=user
+      - DB_PASSWORD=user
+      - DB_NAME=insurance_customer
+      - CUSTOMER_SERVICE_PORT=40000
+      - LD_LIBRARY_PATH=/usr/local/lib
+    labels:
+      edu.hm.ziegler0.description: "Customer Microservice"
+      edu.hm.ziegler0.department: "Customers"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  policyService:
+    image: mziegle1/policy_service:run
+    ports: 
+      - "40001:40001"
+    environment:
+      - DB_SERVER=database
+      - DB_USER=user
+      - DB_PASSWORD=user
+      - DB_NAME=insurance_policy
+      - CUSTOMER_SERVICE_HOST=customerService
+      - POLICY_SERVICE_PORT=40001
+      - CUSTOMER_SERVICE_PORT=40000
+    labels:
+      edu.hm.ziegler0.description: "Policy Microservice"
+      edu.hm.ziegler0.department: "Policies"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  documentService:
+    image: mziegle1/document_service:run
+    ports: 
+      - "40002:40002"
+    environment:
+      - POLICY_SERVICE_HOST=policyService
+      - POLICY_SERVICE_PORT=40001
+      - DOCUMENT_SERVICE_PORT=40002
+    labels:
+      edu.hm.ziegler0.description: "Document Microservice"
+      edu.hm.ziegler0.department: "Documents"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  database:
+    image: mziegle1/mysql-server:commit
+    # volumes:
+    #  - insurance_data:/var/lib/mysql
+    # depends_on:
+    #  - insurance_data_container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    labels:
+      edu.hm.ziegler0.description: "Database"
+      edu.hm.ziegler0.department: "Data"
+  #insurance_data_container:
+  #  image: mziegle1/insurance_data_image:v0
+  #  volumes:
+  #    - insurance_data:/var/lib/mysql
+  #  command: bash -c "cp -r mysql.tar.gz /var/lib; cd /var/lib; tar -zxvf mysql.tar.gz; tail -f /dev/null"
+  #  labels:
+  #    edu.hm.ziegler0.description: "Data"
+  #    edu.hm.ziegler0.department: "Data"
+#volumes:
+  #  insurance_data:
+
+
