@@ -22,9 +22,10 @@ services:
     ports:
       - "40003:40003"
     environment:
-      RATING_SERVICE_PORT=40003
-    edu.hm.ziegler0.description: "Rating Microservice"
-    edu.hm.ziegler0.department: "Rating"
+      - RATING_SERVICE_PORT=40003
+    labels: 
+      edu.hm.ziegler0.description: "Rating Microservice"
+      edu.hm.ziegler0.department: "Rating"
     deploy:
       replicas: 2
       resources:
