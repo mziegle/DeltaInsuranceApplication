@@ -8,9 +8,15 @@ services:
       - CUSTOMER_SERVICE_PORT=40000
       - POLICY_SERVICE_PORT=40001
       - DOCUMENT_SERVICE_PORT=40002
+      - RATING_SERVICE_PORT=40003
+      - RATING_SERVICE_PORT_SOAP=40004
+      - RATING_SERVICE_PORT_REST=40005
       - CUSTOMER_SERVICE_HOST=customerService
       - POLICY_SERVICE_HOST=policyService
       - DOCUMENT_SERVICE_HOST=documentService
+      - RATING_SERVICE_HOST=ratingService
+      - RATING_SERVICE_HOST_SOAP=ratingServiceSOAP
+      - RATING_SERVICE_HOST_REST=ratingServiceRest
     command: bash
     volumes:
       - ~/bills:/bills
@@ -90,6 +96,57 @@ services:
     labels:
       edu.hm.ziegler0.description: "Document Microservice"
       edu.hm.ziegler0.department: "Documents"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  ratingService:
+    image: mziegle1/rating_service:run
+    ports: 
+      - "40003:40003"
+    environment:
+      - RATING_SERVICE_PORT=40003
+    labels:
+      edu.hm.ziegler0.description: "Rating Microservice"
+      edu.hm.ziegler0.department: "Rating"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  ratingServiceSOAP:
+    image: mziegle1/rating_service_soap:run
+    ports: 
+      - "40004:40004"
+    environment:
+      - RATING_SERVICE_PORT_SOAP=40004
+    labels:
+      edu.hm.ziegler0.description: "Rating Microservice SOAP"
+      edu.hm.ziegler0.department: "Rating"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+  ratingServiceRest:
+    image: mziegle1/rating_service_rest:run
+    ports: 
+      - "40005:40005"
+    environment:
+      - RATING_SERVICE_PORT_REST=40005
+    labels:
+      edu.hm.ziegler0.description: "Rating Microservice REST"
+      edu.hm.ziegler0.department: "Rating"
     deploy:
       replicas: 2
       resources:
