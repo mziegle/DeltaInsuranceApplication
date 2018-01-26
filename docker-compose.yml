@@ -11,12 +11,14 @@ services:
       - RATING_SERVICE_PORT=40003
       - RATING_SERVICE_PORT_SOAP=40004
       - RATING_SERVICE_PORT_REST=40005
+      - CUSTOMER_SERVICE_PORT_SOAP=40006
       - CUSTOMER_SERVICE_HOST=customerService
       - POLICY_SERVICE_HOST=policyService
       - DOCUMENT_SERVICE_HOST=documentService
       - RATING_SERVICE_HOST=ratingService
       - RATING_SERVICE_HOST_SOAP=ratingServiceSOAP
       - RATING_SERVICE_HOST_REST=ratingServiceRest
+      - CUSTOMER_SERVICE_HOST_SOAP=customerServiceSOAP
     command: bash
     volumes:
       - ~/bills:/bills
@@ -155,26 +157,27 @@ services:
           memory: 50M
       restart_policy:
         condition: on-failure
+  customerServiceSOAP:
+    image: mziegle1/customer_service_soap:run
+    ports:
+      - "40006:40006"
+    environment:
+      - CUSTOMER_SERVICE_PORT_SOAP=40006
+    labels:
+      edu.hm.ziegler0.description: "Customer Microservice SOAP"
+      edu.hm.ziegler0.department: "Customers"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
   database:
     image: mziegle1/mysql-server:commit
-    # volumes:
-    #  - insurance_data:/var/lib/mysql
-    # depends_on:
-    #  - insurance_data_container
     environment:
       - MYSQL_ROOT_PASSWORD=root
     labels:
       edu.hm.ziegler0.description: "Database"
       edu.hm.ziegler0.department: "Data"
-  #insurance_data_container:
-  #  image: mziegle1/insurance_data_image:v0
-  #  volumes:
-  #    - insurance_data:/var/lib/mysql
-  #  command: bash -c "cp -r mysql.tar.gz /var/lib; cd /var/lib; tar -zxvf mysql.tar.gz; tail -f /dev/null"
-  #  labels:
-  #    edu.hm.ziegler0.description: "Data"
-  #    edu.hm.ziegler0.department: "Data"
-#volumes:
-  #  insurance_data:
-
-
