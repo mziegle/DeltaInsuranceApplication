@@ -1,4 +1,4 @@
-version: '3'
+version: '3.0'
 services:
   deltac:
     image: mziegle1/deltac:run
